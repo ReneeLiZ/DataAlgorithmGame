@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>你好，小某书 实习生</title>
+  <style>
+    :root {
+      --bg:#ffffff; --card:#ffffff; --line:#f0f0f0; --text:#333333; --sub:#999999;
+      --xhs-red:#ff2442; --xhs-bg:#f5f5f5;
+      --accent-soft:#5c7eb3; --accent-muted:#e8eef6;
+      --pink:#e9c6e4; --blue:#3b82f6; --green:#ccefd4; --yellow:#f4e89a; --danger:#e56c7e;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;background:var(--xhs-bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--text);display:flex;justify-content:center;letter-spacing:0;padding:12px 10px 18px}
+    .app{width:100%;max-width:min(960px,100%);min-height:calc(100dvh - 24px);position:relative;overflow-x:hidden;overflow-y:auto;background:var(--bg);border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.06)}
+    /* 教学说明：数据与算法关系（页面最顶） */
+    .edu-panel{margin:0 0 10px;border:1px solid #e8e8e8;border-radius:12px;background:linear-gradient(180deg,#fafafa,#fff);overflow:hidden;flex-shrink:0}
+    .edu-panel summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:14px;font-weight:700;color:#111;display:flex;align-items:center;justify-content:space-between;gap:10px;user-select:none;-webkit-tap-highlight-color:transparent}
+    .edu-panel summary::-webkit-details-marker{display:none}
+    .edu-panel summary::after{content:"▼";font-size:10px;color:#94a3b8;transition:transform .2s ease}
+    .edu-panel[open] summary::after{transform:rotate(-180deg)}
+    .edu-panel summary:hover{background:linear-gradient(180deg,#f5f5f5,#fafafa)}
+    .edu-panel__inner{padding:0 14px 14px;font-size:13px;line-height:1.65;color:#475569}
+    .edu-panel__inner p{margin:0 0 10px}
+    .edu-panel__inner p:last-child{margin-bottom:0}
+    .edu-panel__inner strong{color:#1e293b;font-weight:600}
+    .edu-panel__formula{font-size:12px;line-height:1.6;border:1px dashed #cbd5e1;border-radius:10px;padding:10px 12px;margin:4px 0 8px;background:#fff;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#334155;white-space:pre-wrap;word-break:break-word}
+    .edu-panel__list{margin:6px 0 0;padding-left:1.2em}
+    .edu-panel__list li{margin:4px 0}
+    .app.warn::before{content:"";position:fixed;inset:0;border:2px solid rgba(229,108,126,.55);pointer-events:none;animation:warn .9s infinite;z-index:10}
+    @keyframes warn{0%,100%{opacity:.2}50%{opacity:.6}}
+    .hidden{display:none!important}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:none}
+    .num-key{color:var(--accent-soft);font-weight:800;font-variant-numeric:tabular-nums}
+    .btn{border:1px solid #d1d5db;background:#fff;color:#4b5563;border-radius:999px;padding:8px 12px;font-weight:600;font-size:12px;transition:opacity .35s ease,color .35s ease,border-color .35s ease}
+    .btn.red{background:#333;color:#fff;border-color:#333;transition:background-color 1.2s ease,border-color 1.2s ease}
+    .btn.red:hover{background:#252525;border-color:#252525}
+    .btn:active{transform:scale(.98)}
+    #intro{position:relative;min-height:100dvh;padding:24px 20px;display:flex;flex-direction:column;gap:16px}
+    #intro .row{align-items:flex-start;margin-bottom:2px}
+    .intro-head{display:flex;flex-direction:column;gap:4px}
+    .title-dot{width:8px;height:8px;border:1px solid #d1d5db;transform:rotate(45deg);border-radius:1px}
+    .title{font-size:30px;font-weight:780;line-height:1.2}
+    .sub{color:#6b7280;font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;letter-spacing:.05em}
+    .bubble{border:1px solid #e5e7eb;background:#fff;border-radius:12px;padding:12px 14px;font-size:13px}
+    .bubble.mentor-bubble{background:#E6F0F2;color:#4A6D75;line-height:1.66}
+    .bubble.rule-bubble{background:#FDF6E8;color:#8C7B5D}
+    .bubble strong{color:inherit}
+    .split{height:.5px;background:#e5e7eb;margin:-4px 0 0}
+    .budget-rail{height:4px;background:#f3f4f6;border-radius:999px;overflow:hidden}
+    .budget-rail .budget-fill{height:100%;width:78%;background:#d1d5db}
+    .key-num{color:#3B82F6;font-weight:700}
+    .live-strip{margin-top:2px;padding:10px 0 8px;border-top:.5px solid #e5e7eb;border-bottom:.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px}
+    .live-item{display:flex;flex-direction:column;gap:3px;padding-bottom:2px}
+    .live-item .head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+    .live-item .lab{font-size:10px;color:#9ca3af;letter-spacing:.04em;white-space:nowrap}
+    .live-item .val{font-size:20px;line-height:1.05;font-weight:760;color:#111827;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .live-item .val.key{color:#d4af37}
+    .live-item .desc{font-size:11px;color:#6b7280;line-height:1.55}
+    #skipBtn{color:#9ca3af;border-color:transparent;background:transparent;opacity:.4}
+    #skipBtn:hover{opacity:1;color:#6b7280;border-color:#d1d5db;background:#fff}
+    #startBtn{margin-top:8px}
+    /* 手机端：仅 status 固定顶栏，其余在 .game-scroll 内折叠滚动 */
+    #game{display:flex;flex-direction:column;height:calc(100dvh - 36px);max-height:calc(100dvh - 36px);padding:0;padding-bottom:calc(88px + env(safe-area-inset-bottom));overflow:hidden;box-sizing:border-box}
+    #game .game-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:10px 12px 16px}
+    .status.status--sticky{flex-shrink:0;position:relative;top:auto;z-index:14;margin:0;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));border-bottom:1px solid var(--line);border-left:0;border-right:0;border-top:0;border-radius:0;background:rgba(255,255,255,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 16px rgba(15,23,42,.05);transition:box-shadow .25s ease,border-color .25s ease}
+    .status.status--sticky.status--susp-pause{border-bottom-color:#fecaca;box-shadow:0 2px 12px rgba(220,38,38,.08)}
+    .status.status--sticky.status-trust-drop{animation:statusTrustFlash .45s ease}
+    @keyframes statusTrustFlash{0%,100%{box-shadow:0 2px 16px rgba(15,23,42,.05)}40%{box-shadow:0 0 0 1px rgba(239,68,68,.45),0 4px 20px rgba(239,68,68,.12)}}
+    @media (prefers-reduced-motion:reduce){.status.status--sticky.status-trust-drop{animation:none}}
+    .status-live-hd{font-size:10px;font-weight:700;color:#64748b;letter-spacing:.14em;margin:0 0 6px}
+    .status-live-preview{font-size:12px;line-height:1.5;color:#1e293b;min-height:2.6em;font-weight:500}
+    .status-live-preview .live-rank{color:#0f172a;font-weight:700;font-variant-numeric:tabular-nums}
+    .status-live-preview .live-sub{font-size:11px;color:#64748b;font-weight:400;margin-top:2px;display:block}
+    /* 顶栏：关卡目标类目当前匹配分（通关判定用此分数） */
+    .goal-score-strip{margin:0 0 10px;padding:10px 12px;background:#fff;border:1px solid #ffe4e9;border-radius:10px;font-size:13px;line-height:1.45;color:#333}
+    .goal-score-strip .goal-num{font-size:22px;font-weight:800;color:var(--xhs-red);font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
+    .goal-score-strip.goal-score-strip--ok .goal-num{color:#16a34a}
+    .goal-score-strip .goal-sub{font-size:11px;color:#888;margin-top:6px;line-height:1.4}
+    #statusStrip .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 6px;margin-top:4px}
+    #statusStrip .si{padding:0;text-align:center}
+    #statusStrip .si-lab{display:block;font-size:9px;font-weight:700;letter-spacing:.06em;color:#64748b;margin-bottom:2px}
+    #statusStrip .si-lab.trust{color:#0d9488}#statusStrip .si-lab.susp{color:#b45309}#statusStrip .si-lab.budget{color:#4f46e5}#statusStrip .si-lab.goal{color:#7c3aed}
+    #statusStrip .num-key{display:block;margin-top:0;font-size:22px;line-height:1.1;font-weight:800;color:#0f172a;transition:all .3s ease}
+    #statusStrip .num-key.value-change{animation:valueChangePop .38s ease}
+    @keyframes valueChangePop{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+    @media (prefers-reduced-motion:reduce){#statusStrip .num-key.value-change{animation:none}}
+    #statusStrip .si-budget-inner{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+    #statusStrip .budget-mini-track{width:100%;max-width:72px;height:4px;border-radius:999px;background:#eef0f4;overflow:hidden;border:1px solid var(--line)}
+    #statusStrip .budget-mini-fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,#a5b4fc,#6366f1);transition:width .28s ease}
+    #statusStrip .track{height:9px;background:#e8edf2;border-radius:999px;overflow:hidden;margin-top:10px;border:1px solid var(--line)}
+    #statusStrip .track .fill{height:100%;width:100%;border-radius:inherit;transition:width .28s ease,background .28s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+    .algo-live-strip{border:1px solid #e2ebf3;border-radius:14px;padding:8px 10px;margin-bottom:10px;background:linear-gradient(180deg,#f8fbff,#fff);display:none}
+    #p-algo.panel.active .algo-live-strip{display:block}
+    .algo-live-hd{font-size:10px;font-weight:700;color:#64748b;letter-spacing:.08em;margin:0 0 4px}
+    .algo-live-line{font-size:12px;line-height:1.5;color:#1e293b}
+    .algo-live-line b{font-variant-numeric:tabular-nums}
+    .top{padding:4px 0 8px}
+    .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .name{font-size:13px;font-weight:700;color:#6f8198}
+    .mentor{margin-top:8px;background:#fafbfc;border:1px solid var(--line);border-radius:14px;padding:8px 10px;font-size:12px;display:none;white-space:pre-line;color:#5c6b7a}
+    .status{margin-top:8px;border:1px solid var(--line);border-radius:18px;padding:10px 12px;background:#fff}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+    .si{padding:0;font-size:10px;color:#8497ac;line-height:1.4}
+    .si b{display:block;margin-top:3px;font-size:24px;line-height:1.05;font-weight:800;color:#1d2a3f;font-variant-numeric:tabular-nums}
+    #statusStrip .si b{margin-top:0}
+    #budgetV{transition:color .2s ease}
+    #budgetV.budget-flash{color:#c47a86!important;animation:budgetFlash .55s ease-in-out 3}
+    @keyframes budgetFlash{0%,100%{opacity:1;color:#b87884}50%{opacity:.35;color:#d4a0a8}}
+    @media (prefers-reduced-motion:reduce){#budgetV.budget-flash{animation:none;color:#c47a86!important}}
+    .track{height:8px;background:#dde8f2;border:0;border-radius:999px;overflow:hidden;margin-top:10px}
+    .fill{height:100%;width:100%;background:linear-gradient(90deg,#d6eeb4,#f3de8d);transition:.25s}
+    #statusStrip .track{margin-top:10px}
+    .warn-text{font-size:11px;color:#c15368;display:none;margin-top:7px}
+    .task{margin:10px 0 8px;background:linear-gradient(135deg,#f0d7ee,#e8d8f4)}
+    .task .k{color:#6f5b80;font-size:11px;font-weight:700;letter-spacing:.08em}
+    .task .m{font-size:14px;line-height:1.65;color:#2f2a3e}
+    .task .x{font-size:11px;color:#6f7f93}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+    .tabs[data-tabs="2"]{grid-template-columns:repeat(2,1fr)}
+    .tab{padding:9px 8px;border:1px solid #d8e3ec;background:#f7fbff;border-radius:999px;text-align:center;font-size:12px;font-weight:600;color:#69809c;display:flex;align-items:center;justify-content:center;gap:6px}
+    .ico{width:18px;height:18px;border-radius:6px;border:1px solid #c7d8e7;background:#eaf2f9;display:inline-flex;align-items:center;justify-content:center;color:#4b6481;flex:none}
+    .ico::before{font-size:10px;line-height:1}
+    .ico.data::before{content:"\25A1"}
+    .ico.algo::before{content:"\2699"}
+    .ico.rec::before{content:"\2316"}
+    .tab.active{border-color:#b9d8e9;color:#1f3148;background:#dff0fb}
+    .tab.tab-hint-breathe{animation:tabBreathe 3.4s ease-in-out infinite}
+    @keyframes tabBreathe{0%,100%{box-shadow:0 0 0 1px rgba(226,232,240,.9),0 0 10px rgba(148,163,184,.12)}50%{box-shadow:0 0 0 1px rgba(203,213,225,.95),0 0 20px rgba(148,163,184,.22)}}
+    @media (prefers-reduced-motion:reduce){.tab.tab-hint-breathe{animation:none;box-shadow:0 0 0 1px rgba(226,232,240,.85)}}
+    .tab.tab-edge-flash{animation:tabEdgeFlash 2s ease-out forwards}
+    @keyframes tabEdgeFlash{0%{box-shadow:0 0 0 1px rgba(56,189,248,.45),0 0 14px rgba(56,189,248,.4),inset 0 0 12px rgba(255,255,255,.25)}35%{box-shadow:0 0 0 2px rgba(99,102,241,.55),0 0 28px rgba(129,140,248,.5),inset 0 0 8px rgba(255,255,255,.2)}100%{box-shadow:0 0 0 1px rgba(226,232,240,.9),0 0 0 rgba(148,163,184,0)}}
+    @media (prefers-reduced-motion:reduce){.tab.tab-edge-flash{animation:none;box-shadow:0 0 0 2px rgba(99,102,241,.4),0 0 16px rgba(129,140,248,.35)}}
+    .panel{display:none;margin-top:10px}
+    .panel.active{display:block}
+    .section{font-weight:700;font-size:12px;margin-bottom:8px;color:#6f8298;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+    .hint{font-size:12px;color:var(--sub);line-height:1.5;white-space:pre-line}
+    .u{margin-bottom:8px}
+    .uhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .badge{font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid}
+    .badge.l{color:#2b7757;background:#dcf4e4;border-color:#afe1c3}
+    .badge.m{color:#4e6583;background:#e6eef6;border-color:#bed1e3}
+    .badge.h{color:#a7455a;background:#f8dce2;border-color:#ebb2bf}
+    .slider{margin-bottom:6px}
+    .slider .lr{display:flex;justify-content:space-between;font-size:12px;color:#637992}
+    input[type=range]{width:100%;height:8px;background:#e2ebf3;border-radius:999px;appearance:none}
+    input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#ffffff;border:1px solid #9fb5ca;box-shadow:0 2px 6px rgba(83,110,139,.25)}
+    .name-input{width:100%;border:1px solid #cfdeea;background:#f8fbff;color:#31465f;border-radius:10px;padding:8px;margin-bottom:6px}
+    .danger{border:1px solid #e7bcc6;background:#fff1f4;color:#b8586b;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:700}
+    .formula{font-size:12px;line-height:1.6;border:1px solid #dde8f0;background:#f8fbff;border-radius:15px;padding:10px;margin-bottom:8px}
+    .legend{font-size:11px;display:flex;gap:10px;flex-wrap:wrap}
+    .fb{color:#7ca8d8;font-weight:700}.fg{color:#69af8f;font-weight:700}.fy{color:#b39b30;font-weight:700}
+    .tracker{font-size:12px;margin:4px 0}
+    .tracker b{color:#22344a}
+    .tk{color:#73662b} .topk{color:#73662b}
+    .bar{height:8px;background:#e2eaf2;border:0;border-radius:999px;overflow:hidden}
+    .bar>div{height:100%;width:0;background:linear-gradient(90deg,#bddfe0,#c8e8b8)}
+    .avg{margin-top:10px;font-size:12px;line-height:1.55;background:#f8fbff;border:1px solid #dde8f0;border-radius:12px;padding:8px;white-space:pre-line}
+    .feed{display:flex;flex-direction:column;gap:8px}
+    .post{background:#f9fcff;border:1px solid #dde8f0;border-radius:14px;padding:10px}
+    .ptags{font-size:12px;color:#4e647f;background:#edf4fb;border:1px solid #d0deec;border-radius:10px;padding:5px 7px;margin-bottom:6px}
+    .calc{font-size:12px;line-height:1.55;background:#f6fafe;border:1px solid #dbe6f0;border-radius:10px;padding:7px;white-space:pre-line}
+    .action{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:398px}
+    .exec{width:100%;padding:11px 14px;border-radius:999px;border:1px solid #111829;background:#111829;color:#fff;font-size:12px;font-weight:700;letter-spacing:.06em}
+    .overlay{position:fixed;inset:0;background:rgba(33,48,67,.22);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
+    .oc{width:100%;max-width:340px;background:#f8fcff;border:1px solid #dce8f1;border-radius:18px;padding:15px;text-align:center;color:#1d3048}
+    .oc h3{margin:0 0 8px}.oc p{font-size:14px;line-height:1.5;color:#5a6f88;white-space:pre-line}
+    .result-pop .oc{max-width:360px;text-align:left}
+    .result-title{font-size:11px;color:#70839b;letter-spacing:.04em;margin-bottom:6px}
+    .result-main{font-size:14px;line-height:1.6;color:#2a3e58;white-space:pre-line}
+    .result-main b{color:#1a2a40}
+    .result-actions{margin-top:12px;display:flex;justify-content:flex-end}
+    .result-btn{border:1px solid #cfdbe8;background:#fff;color:#2d435f;border-radius:999px;padding:7px 14px;font-size:12px;font-weight:700}
+    .float{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#fff1f4;border:1px solid #e9bfca;color:#b5576a;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;display:none;z-index:30}
+    .mission-mask{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:22px 18px;background:rgba(255,255,255,.5);backdrop-filter:blur(2px);z-index:45;pointer-events:none}
+    .mission-pop{width:calc(100% - 10px);max-width:360px;background:#fff;border:1px solid var(--line);color:#314866;border-radius:18px;padding:18px 18px 14px;font-size:12px;line-height:1.65;box-shadow:0 10px 36px rgba(15,23,42,.05),0 0 0 1px rgba(255,255,255,.9) inset;transition:opacity .28s ease,transform .28s ease}
+    .mission-pop.mission-pop--out{opacity:0;transform:translateY(6px) scale(.985)}
+    .mission-pop b{font-weight:700}
+    .mission-title{font-size:11px;color:#6b7f9a;letter-spacing:.05em;margin-bottom:6px}
+    .mission-sub{font-size:10px;color:#94a3b8;letter-spacing:.04em;margin:-2px 0 8px}
+    .mission-body{font-size:13px;line-height:1.78;color:#2f3f55;font-weight:450;text-align:left;margin:0 0 6px}
+    .mission-body b{font-weight:700;color:#1e293b}
+    .mission-ok{margin-top:12px;width:100%;border:1px solid var(--line);background:#fff;color:#334155;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:700;transition:background .2s ease}
+    .mission-ok:hover{background:var(--accent-muted)}
+    .mission-pop,.mission-pop *{pointer-events:auto}
+    /* 开屏叙事：全屏深色极简 + 逐字浮现 */
+    .intro-cinematic{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:max(20px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));background:linear-gradient(165deg,#08090a 0%,#141518 48%,#0d0e10 100%);cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .intro-cinematic.hidden{display:none!important}
+    .intro-cinematic-inner{width:100%;max-width:360px}
+    .intro-typewriter{color:#c4c8ce;font-size:14px;line-height:1.92;letter-spacing:.06em;font-weight:450;margin:0;min-height:9.5em;text-shadow:0 1px 24px rgba(0,0,0,.35)}
+    .intro-cinematic-hint{margin-top:32px;text-align:center;font-size:11px;color:#5c6068;letter-spacing:.14em;opacity:0;transition:opacity .6s ease}
+    .intro-cinematic-hint.is-visible{opacity:1}
+    @media (prefers-reduced-motion:reduce){.intro-typewriter{transition:none}}
+    .fold-card.goal-hint-fold .fold-head{background:linear-gradient(135deg,#f8f9fb,#f3f4f6)}
+    .intro-main{flex:1;display:flex;flex-direction:column;gap:16px;min-height:0}
+    .intro-main.hidden{display:none!important}
+    /* Level 0 数据池锁定 */
+    .tab.tab-locked{color:#b8c2cc!important;border-color:#eceef2!important;background:#fafbfc!important;cursor:pointer;opacity:.78}
+    .tab.tab-locked.active{border-color:#eceef2!important;background:#fafbfc!important;color:#b8c2cc!important;box-shadow:none}
+    .tab.tab-locked .ico{opacity:.55;border-color:#e5e7eb;color:#9ca3af}
+    #p-data.panel{position:relative;min-height:160px}
+    .data-lock-layer{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.82);backdrop-filter:blur(1px);border-radius:12px;pointer-events:auto}
+    .data-lock-layer.hidden{display:none!important}
+    .data-lock-inner{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px}
+    .data-lock-spinner{width:24px;height:24px;border:2px solid #eceef2;border-top-color:#b8c2cc;border-radius:50%;animation:dataLockSpin .75s linear infinite}
+    @keyframes dataLockSpin{to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion:reduce){.data-lock-spinner{animation:none;border-color:#e5e7eb}}
+    .data-lock-inner .dl-label{font-size:12px;font-weight:600;letter-spacing:.2em;color:#b8c0c8}
+    .data-lock-progress{width:min(180px,65%);height:3px;border-radius:999px;background:#eef0f3;overflow:hidden}
+    .data-lock-progress::after{content:"";display:block;height:100%;width:32%;border-radius:inherit;background:linear-gradient(90deg,#e2e5ea,#d1d5dd);animation:dlBar 2.4s ease-in-out infinite}
+    @keyframes dlBar{0%,100%{transform:translateX(-30%);opacity:.4}50%{transform:translateX(140%);opacity:.85}}
+    .data-next-hint{display:none!important}
+    .btn.btn-locked{border:2px dashed #c5cdd6!important;color:#9ca3af!important;background:#fafafa!important;cursor:not-allowed!important;opacity:.88;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+    /* 可折叠卡片 */
+    .fold-card{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px;overflow:hidden}
+    .fold-head{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;text-align:left;font:inherit;color:#475569}
+    .fold-head>span:first-child{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;flex:1;min-width:0}
+    .fold-head:hover{background:#fafafa}
+    .fold-chev{font-size:10px;color:#94a3b8;transition:transform .3s ease;flex:none}
+    .fold-card.is-open .fold-chev{transform:rotate(180deg)}
+    .fold-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+    .fold-card.is-open .fold-body{max-height:1200px}
+    .fold-inner{padding:0 12px 12px;font-size:12px;color:#64748b;line-height:1.6}
+    .fold-summary{font-size:12px;color:#64748b;line-height:1.45;padding:0 12px 10px}
+    .fold-line{font-size:11px;color:#94a3b8;margin-top:4px;display:block}
+    .fold-card.task .fold-head{background:linear-gradient(135deg,#faf8fb,#f6f4f9)}
+    .perm-pop-overlay{position:fixed;inset:0;background:rgba(255,255,255,.45);backdrop-filter:blur(1px);display:none;align-items:center;justify-content:center;padding:20px;z-index:44}
+    .perm-pop-box{width:100%;max-width:320px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;box-shadow:0 12px 40px rgba(15,23,42,.06)}
+    .perm-pop-box p{margin:0;font-size:13px;line-height:1.7;color:#64748b}
+    .perm-pop-box .perm-ok{margin-top:14px;width:100%;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:600;color:#334155}
+    .si b.num-key{color:var(--accent-soft)}
+    /* —— 游戏化重构 —— */
+    .intro-min{padding:28px 20px 32px;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;gap:28px}
+    .intro-min .game-title{font-size:clamp(26px,7vw,34px);font-weight:850;line-height:1.15;color:#0f172a;text-align:center;letter-spacing:-.02em}
+    .intro-goal{font-size:clamp(18px,5vw,24px);font-weight:600;text-align:center;color:#333;line-height:1.45;padding:20px 16px;border-radius:12px;background:#fafafa;border:1px solid #f0f0f0}
+    .intro-goal .g-emoji{font-size:1.1em;margin-right:6px}
+    .btn-challenge{width:100%;max-width:320px;margin:0 auto;padding:12px 20px;font-size:16px;font-weight:600;border-radius:22px;border:none;background:var(--xhs-red);color:#fff;box-shadow:0 4px 16px rgba(255,36,66,.35)}
+    .btn-challenge:active{transform:scale(.98)}
+    #intro .row.intro-bar{justify-content:flex-end;margin-bottom:0}
+    .game-hd{padding:6px 0 0;border-bottom:1px solid var(--line);background:#fff}
+    .trust-events{font-size:13px;font-weight:700;color:#0f766e;line-height:1.45;min-height:2.6em;padding:4px 0}
+    .trust-events.is-warn{color:#b45309}
+    .trust-events.is-danger{color:#b91c1c}
+    .trust-events.is-frozen{color:#991b1b;animation:evtShake .5s ease}
+    .trust-pct-wrap{font-size:12px;font-weight:600;color:#334155;margin-top:6px}
+    .trust-pct-wrap #trustV{font-variant-numeric:tabular-nums;color:#0d9488;font-weight:800}
+    @keyframes evtShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+    .sus-inline{font-size:11px;color:#94a3b8;font-weight:600;margin-top:4px}
+    .rank-board{margin-bottom:0;flex:1;display:flex;flex-direction:column;min-height:0}
+    .rank-board-hd{font-size:13px;font-weight:600;color:#111;margin:0 0 8px;letter-spacing:0}
+    /* 结果区：右侧单列笔记卡（窄栏可读） */
+    .rank-list.xhs-feed,.xhs-feed{display:grid;grid-template-columns:1fr;gap:8px;align-items:start}
+    .xhs-card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:transform .35s ease,box-shadow .35s ease}
+    .xhs-card--first{box-shadow:0 4px 14px rgba(255,36,66,.15);transform:scale(1.02);z-index:1;outline:1px solid rgba(255,36,66,.25)}
+    .xhs-card--flash{animation:xhsFlash .55s ease}
+    .xhs-card--mv-up{animation:rankMoveUp .5s cubic-bezier(.22,1,.36,1)}
+    .xhs-card--mv-down{animation:rankMoveDown .5s cubic-bezier(.22,1,.36,1)}
+    @keyframes xhsFlash{0%,100%{filter:brightness(1)}45%{filter:brightness(1.08)}}
+    @keyframes rankMoveUp{0%{transform:translateY(8px);opacity:.85}100%{transform:translateY(0);opacity:1}}
+    @keyframes rankMoveDown{0%{transform:translateY(-8px);opacity:.85}100%{transform:translateY(0);opacity:1}}
+    @media (prefers-reduced-motion:reduce){.xhs-card--first{transform:none}.xhs-card--flash,.xhs-card--mv-up,.xhs-card--mv-down{animation:none}}
+    .xhs-cover{position:relative;aspect-ratio:3/4;width:100%;background:#f0f0f0;border-radius:8px 8px 0 0}
+    .xhs-tag{position:absolute;top:6px;left:6px;font-size:10px;color:#fff;background:rgba(0,0,0,.45);padding:2px 6px;border-radius:4px;font-weight:500}
+    .xhs-match{position:absolute;bottom:6px;right:6px;font-size:10px;color:#fff;background:rgba(255,36,66,.85);padding:2px 6px;border-radius:4px;font-weight:600}
+    .xhs-title{font-size:13px;font-weight:500;color:#333;line-height:1.4;padding:8px 8px 4px;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em}
+    .xhs-footer{display:flex;justify-content:space-between;align-items:center;padding:0 8px 8px;font-size:11px;color:#999}
+    .xhs-user{display:flex;align-items:center;gap:4px;min-width:0}
+    .xhs-av{width:18px;height:18px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+    .xhs-nick{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72px;color:#666}
+    .xhs-like{color:#999;font-variant-numeric:tabular-nums;flex:none}
+    .game-mid{margin-top:4px}
+    .section-game{font-size:12px;font-weight:800;color:#475569;letter-spacing:.06em;margin:0 0 8px}
+    .btn-add-bot{width:100%;margin-top:12px;padding:11px 14px;border-radius:14px;font-size:13px;font-weight:800;border:2px solid #ef4444;background:#fff;color:#dc2626;transition:background .2s,box-shadow .2s,transform .15s}
+    .btn-add-bot:not(:disabled):hover{background:#fef2f2;box-shadow:0 0 0 3px rgba(239,68,68,.2)}
+    .btn-add-bot:not(:disabled):active{transform:scale(.99)}
+    .btn-add-bot[title]:not(:disabled){cursor:help}
+    .user-pool-toggle{width:100%;margin:10px 0 6px;padding:10px 12px;border-radius:12px;border:1px dashed #cbd5e1;background:#f8fafc;font-size:12px;font-weight:700;color:#475569;display:flex;justify-content:space-between;align-items:center}
+    .user-pool-toggle span:last-child{opacity:.6;font-size:10px}
+    #userPoolPanel{max-height:0;overflow:hidden;transition:max-height .4s ease}
+    #userPoolPanel.is-open{max-height:2200px}
+    .exec{font-size:16px;font-weight:600;letter-spacing:0;padding:12px 16px;background:var(--xhs-red);color:#fff;border:none;border-radius:22px;box-shadow:0 4px 12px rgba(255,36,66,.35)}
+    .exec:active{opacity:.92;transform:scale(.99)}
+    .pulse-ov{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.42);backdrop-filter:blur(4px);padding:20px;pointer-events:none}
+    .pulse-ov.is-on{display:flex;pointer-events:auto}
+    .pulse-card{text-align:center;padding:28px 24px;border-radius:22px;max-width:320px;width:100%;background:#fff;border:1px solid var(--line);box-shadow:0 24px 60px rgba(15,23,42,.2);opacity:0;transform:scale(.88) translateY(12px);animation:pulseIn .6s cubic-bezier(.33,1,.68,1) forwards}
+    .pulse-card--fail{border-color:#fecaca;background:linear-gradient(180deg,#fff,#fef2f2)}
+    .pulse-card--ok{border-color:#bbf7d0;background:linear-gradient(180deg,#fff,#ecfdf5)}
+    @keyframes pulseIn{to{opacity:1;transform:scale(1) translateY(0)}}
+    .pulse-card .ph{font-size:22px;font-weight:900;margin:0 0 8px;color:#0f172a}
+    .pulse-card .ps{font-size:14px;color:#64748b;line-height:1.55;margin:0;font-weight:600}
+    .hidden-ui{display:none!important}
+    .susp-pause-banner{margin-top:8px;padding:8px 10px;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;font-size:12px;font-weight:700;line-height:1.45}
+    /* 主玩法区：左侧调控台 + 右侧结果（横排） */
+    .game-body{display:flex;flex-direction:row;align-items:stretch;gap:10px;flex:1;min-height:0}
+    .game-col{min-width:0}
+    .game-col-console{flex:1 1 58%;min-width:0;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    .console-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-right:2px}
+    .console-hd{font-size:11px;font-weight:700;color:#64748b;letter-spacing:.12em;margin:0 0 2px}
+    .game-col-rank{flex:0 0 40%;max-width:min(280px,42vw);min-width:140px;display:flex;flex-direction:column;min-height:0;border:1px solid #f0f0f0;border-radius:12px;background:#fafafa;padding:8px;overflow:hidden}
+    .game-col-rank .rank-board-hd{font-size:12px;margin-bottom:6px}
+    .game-col-rank .rank-list.xhs-feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;min-height:0}
+    .game-mid{margin-top:0;flex-shrink:0}
+    .game-col-users{border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc;padding:6px;flex:1;min-height:120px;display:flex;flex-direction:column;overflow:hidden}
+    .game-col-users #userPoolPanel.is-open{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    @media (max-width:520px){
+      .game-body{flex-direction:column;gap:10px}
+      .game-col-console{order:2}
+      .game-col-rank{order:1;flex:none;max-width:none;width:100%;min-height:220px}
+      .rank-list.xhs-feed{grid-template-columns:1fr 1fr}
+    }
+    @media (orientation:landscape) and (max-width:1400px){
+      body{padding:8px 10px;align-items:stretch}
+      .app{min-height:100dvh;height:100dvh;border-radius:14px;display:flex;flex-direction:column}
+      #intro .intro-min{min-height:auto;padding:20px 16px}
+      #game{height:100dvh;max-height:100dvh;padding-bottom:calc(52px + env(safe-area-inset-bottom));flex:1;min-height:0}
+      .game-hd{padding:6px 10px 4px}
+      .game-hd .card{margin-bottom:4px;padding:8px 10px}
+      #lvMission{font-size:13px!important;line-height:1.35!important}
+      .trust-events{min-height:0;font-size:11px;padding:2px 0}
+      .sus-inline{font-size:10px;margin-top:2px}
+      .game-scroll{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden!important;padding:6px 8px 8px}
+      .game-body{flex-direction:row;gap:8px}
+      .game-col-rank{min-width:120px;max-width:min(280px,34vw)}
+      .xhs-card--first{transform:scale(1.01)}
+      .xhs-title{font-size:12px;padding:6px 6px 2px;min-height:auto}
+      .xhs-footer{padding:0 6px 6px;font-size:10px}
+      .section-game{margin-bottom:4px;font-size:11px}
+      .slider{margin-bottom:4px}
+      .btn-add-bot{margin-top:6px;padding:8px 10px;font-size:11px}
+      .user-pool-toggle{display:none}
+      #userPoolPanel{max-height:none!important}
+      .game-col-users .card{margin-bottom:6px;padding:6px 8px!important}
+      .game-col-users #users .card.u{margin-bottom:6px;padding:8px}
+      .action{max-width:min(960px,calc(100vw - 24px))}
+      .exec{padding:10px 14px;font-size:14px}
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <details class="edu-panel" id="eduPanel" open>
+    <summary>📖 游戏机制</summary>
+    <div class="edu-panel__inner">
+      <p>🎯 核心公式：推荐结果 = 用户数据 × 算法权重</p>
+      <ul class="edu-panel__list">
+        <li>用户数据：池子里的人喜欢什么（加水军会改变数据）</li>
+        <li>算法权重：你分配给各品类的流量比例（滑块）</li>
+        <li>信任度：权重过高或数据造假会下降，过低则限流封号</li>
+      </ul>
+      <p>💡 一句话：算法没有自己的想法，它只计算「数据 × 权重」。<br>想赢 = 冲排名 + 控风险</p>
+    </div>
+  </details>
+  <div class="intro-cinematic hidden" id="introCinematic" aria-hidden="true"></div>
+  <section id="intro">
+    <div class="intro-main" id="introMain">
+    <div class="intro-min">
+      <div class="game-title">你好，小某书 实习生</div>
+      <div class="intro-goal" id="introGoal"><span class="g-emoji">👋</span><span id="introGoalText">成为平台算法数据大师吧</span></div>
+      <button type="button" class="btn-challenge" id="startBtn">进入挑战</button>
+    </div>
+    </div>
+  </section>
+
+  <section id="game" class="hidden">
+    <div class="status status--sticky game-hd" id="statusStrip">
+      <div class="row" style="margin-bottom:6px;justify-content:space-between;align-items:center">
+        <span id="lvName" style="font-size:11px;font-weight:800;color:#64748b;letter-spacing:.12em"></span>
+        <div style="display:flex;gap:6px">
+          <button type="button" class="btn" id="backBtn" style="font-size:11px;padding:6px 10px">返回</button>
+          <button type="button" class="btn" id="resetBtn" style="font-size:11px;padding:6px 10px">重置</button>
+        </div>
+      </div>
+      <div class="card" style="padding:12px 14px;margin-bottom:8px;background:#fafafa;border-color:#f0f0f0;border-radius:10px">
+        <div id="lvMission" style="font-size:15px;font-weight:600;line-height:1.45;color:#333;letter-spacing:0"></div>
+      </div>
+      <div class="goal-score-strip" id="goalScoreLine" aria-live="polite"></div>
+      <div class="trust-events" id="trustEventLine">平台对你还算客气</div>
+      <div class="trust-pct-wrap">平台信任度 <b id="trustV">100</b>% <span style="font-weight:400;color:#94a3b8;font-size:11px">（含关卡条件与匹配折扣）</span></div>
+      <div class="sus-inline hidden" id="susInlineWrap">可疑分合计 <b id="susV">0</b> · 剩余预算 <b id="budgetV">0</b></div>
+      <div class="track" style="margin-top:8px"><div class="fill" id="trustFill" style="width:100%"></div></div>
+      <div class="warn-text" id="warnText" style="display:none;margin-top:8px">⚠️ 平台开始限制你的流量</div>
+      <div class="susp-pause-banner" id="suspPauseBanner" style="display:none" role="status"></div>
+    </div>
+    <div class="game-scroll">
+      <div class="game-body">
+        <div class="game-col game-col-console">
+          <div class="console-panel">
+            <div class="console-hd">调控台</div>
+            <div class="game-mid">
+              <div class="section-game">算法权重（权重设置越大，推流越多）</div>
+              <div id="algo"></div>
+              <button type="button" class="btn-add-bot" id="addBotBtn" title="短期有效，但系统已记录异常行为">⚠️ 添加水军（高风险）</button>
+            </div>
+            <div class="game-col-users">
+              <button type="button" class="user-pool-toggle" id="userPoolToggle"><span>📂 用户池</span><span id="userPoolChev">展开</span></button>
+              <div id="userPoolPanel">
+                <div class="card" style="margin-bottom:8px;padding:10px 12px">
+                  <div class="hint" id="dataPoolHint" style="margin:0;font-size:12px">人数 <b id="uc">3</b></div>
+                </div>
+                <div id="users"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="game-col game-col-rank">
+          <div class="rank-board" id="rankBoard" aria-live="polite">
+            <div class="rank-board-hd">推荐笔记 · 结果</div>
+            <div class="rank-list" id="rankList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="feed hidden-ui" id="feedWrap" aria-hidden="true"><div class="feed" id="feed"></div></div>
+    </div>
+    <div class="mentor" id="mentor"></div>
+  </section>
+</div>
+
+<div class="action hidden" id="action"><button class="exec" id="execBtn">🚀 推送这一轮</button></div>
+<div class="overlay" id="passOv"><div class="oc"><h3>🎉 通关</h3><p id="passText"></p><button class="btn red" id="nextBtn">下一关</button></div></div>
+<div class="overlay" id="finalOv"><div class="oc"><h3>🏆 完成全部挑战</h3><p id="finalText"></p><button class="btn red" id="restartBtn">重新开始</button></div></div>
+<div class="overlay" id="banOv"><div class="oc"><h3>🚫 账号异常，推荐冻结</h3><p>平台开始怀疑你了。请重置关卡。</p><button class="btn red" id="banResetBtn">重置关卡</button></div></div>
+<div class="pulse-ov" id="pulseOv" role="dialog" aria-modal="true" aria-hidden="true"><div class="pulse-card" id="pulseCard"><p class="ph" id="pulseTitle">—</p><p class="ps" id="pulseSub">—</p></div></div>
+<div class="float" id="float">可疑分 +0</div>
+<div class="mission-mask" id="missionMask">
+  <div class="mission-pop" id="missionPop"></div>
+</div>
+<div class="perm-pop-overlay" id="permOv"><div class="perm-pop-box"><p id="permText">这一关还不能碰用户池，先玩转折。</p><button type="button" class="perm-ok" id="permOkBtn">好</button></div></div>
+<div class="overlay" id="dataIntroOv" style="display:none"><div class="oc"><h3>用户池开了</h3><p style="font-size:14px;line-height:1.6;color:#475569">去改水军画像，要贴近上面真实用户；可疑度保持「低」才像真人。</p><button type="button" class="btn red" id="dataIntroOkBtn">开搞</button></div></div>
+<script>
+const TAGS = ["美妆","穿搭","学习","旅行","美食"];
+const MAX_BUDGET = 250;
+const CONTENTS = [
+  { key:"beauty", title:"YSL唇釉试色｜日杂奶咖感", tagLabel:"彩妆", nick:"美妆酱", authorEmoji:"💄", coverGradient:"linear-gradient(165deg,#fce7f3 0%,#fbcfe8 40%,#f472b6 100%)", w:{美妆:0.95,穿搭:0,学习:0,旅行:0,美食:0}},
+  { key:"study", title:"考研英语｜阅读满分技巧合集", tagLabel:"学习", nick:"自习室阿珍", authorEmoji:"📚", coverGradient:"linear-gradient(160deg,#e0f2fe,#bae6fd 50%,#38bdf8)", w:{美妆:0,穿搭:0,学习:0.98,旅行:0,美食:0}},
+  { key:"travel", title:"大理三日｜环洱海路线不踩雷", tagLabel:"旅行", nick:"路上有小王", authorEmoji:"🧳", coverGradient:"linear-gradient(165deg,#ecfccb,#bef264 35%,#65a30d)", w:{美妆:0,穿搭:0,学习:0,旅行:1,美食:0}}
+];
+/** 风险指数（可疑分）≥ 此值时暂停算法/推送/加水军，直至在用户池把风险压下来或重置关卡 */
+const SUSP_PAUSE_THRESHOLD = 45;
+const INTRO_STORY_TEXT="";
+const LEVELS = [
+  {name:"第 1 关", phase:"", mission:"让「美妆」冲到第一名，分数要够狠（≥56）", top:"beauty", minScore:56, bots:null, allowAdd:false, allowBotEdit:false, minTrust:null, budgetCap:250, suspTrustMult:1, fatigueTrustMult:1,
+    storyPop:"滑块先动起来。别让自己看起来像机器人。",
+    mentorBrief:""},
+  {name:"第 2 关", phase:"", mission:"拉「学习」上第一（≥40 分）。至少 2 名水军（开局已预置 1 名，请再添加至少 1 名）；水军画像要像真人（每个水军可疑度须为「低」，贴近真实用户池）；可疑分合计 ≤25", top:"study", minScore:40, maxSusp:25, bots:null, minBots:2, botsMustLookReal:true, allowAdd:true, allowBotEdit:true, minTrust:null, budgetCap:250, suspTrustMult:1, fatigueTrustMult:1,
+    storyPop:"流量不够就加水军，画像别假到一眼穿帮。",
+    mentorBrief:""},
+  {name:"第 3 关", phase:"", mission:"「旅行」登顶（≥60 分）。至少 2 名水军（开局 1 名，请再添加至少 1 名）；每个水军可疑度须为「低」；可疑分合计须 ≤22、信任度须 >55；在「水军数量」与「风险」之间找平衡", top:"travel", minScore:60, maxSusp:22, bots:null, minBots:2, botsMustLookReal:true, allowAdd:true, allowBotEdit:true, minTrust:55, budgetCap:220, suspTrustMult:1.12, fatigueTrustMult:1.15,
+    storyPop:"最后一舞：别贪，也别怂。",
+    mentorBrief:""}
+];
+function levelBotsPass(lv,bots){
+  if(lv.bots!=null) return bots===lv.bots;
+  if(lv.minBots!=null) return bots>=lv.minBots;
+  return true;
+}
+function levelSuspPass(lv){
+  if(lv.maxSuspLt!=null && state.susp>=lv.maxSuspLt) return false;
+  if(lv.maxSusp!=null && state.susp>lv.maxSusp) return false;
+  return true;
+}
+/** 第二关：每个水军单项可疑分须为「低」（<20，与卡片上 🟢低 一致），表示画像贴近真实池 */
+function levelBotsLookRealPass(lv){
+  if(!lv.botsMustLookReal) return true;
+  const bots=state.users.filter(u=>u.type==="bot");
+  if(!bots.length) return false;
+  return bots.every(b=>(state.botMap[b.id]??99)<20);
+}
+function baseUsersLevel(lev){
+  const reals=[
+    {id:"real-xm",type:"real",name:"小美（真实用户）🔴",s:{美妆:94,穿搭:70,学习:25,旅行:60,美食:55}},
+    {id:"real-aj",type:"real",name:"阿杰（真实用户）🔴",s:{美妆:30,穿搭:40,学习:85,旅行:45,美食:50}},
+    {id:"real-xl",type:"real",name:"小丽（真实用户）🔴",s:{美妆:60,穿搭:75,学习:40,旅行:70,美食:80}}
+  ];
+  if(lev===0) return reals;
+  /** 第二关：预置 1 名水军，各维度初始为 0，由玩家在用户池自行拉画像 */
+  if(lev===1) return reals.concat([{
+    id:"bot-lv2-starter",
+    type:"bot",
+    name:"水军001（待调教）🟡",
+    s:{美妆:0,穿搭:0,学习:0,旅行:0,美食:0}
+  }]);
+  return reals.concat([{id:`bot-${Date.now()}-1`,type:"bot",name:"水军001（假号）🟡",s:{美妆:0,穿搭:0,学习:0,旅行:0,美食:0}}]);
+}
+function effectiveBudgetCap(){const lv=LEVELS[state.level]; return lv.budgetCap!=null?lv.budgetCap:MAX_BUDGET;}
+function initState(){
+  return {entered:false,tab:"algo",level:0,algo:{美妆:45,穿搭:52,学习:50,旅行:58,美食:45},users:baseUsersLevel(0),botIdx:1,susp:0,trust:100,fatigue:0,botMap:{},feed:[],passed:[false,false,false],missionAcceptedByLevel:[false,false,false],hintsShown:{},trustPenaltyNext:0,prevRankKeys:[]};
+}
+let state = initState();
+let introCinematicPending = false;
+let introTypewriterStarted = false;
+let introTwTimer = null;
+let shownLevelMission = -1;
+let missionTimer = 0;
+function startIntroTypewriter(){introTypewriterStarted=true;}
+function save(){}
+function clamp(n){return Math.max(0,Math.min(100,Math.round(n)))}
+function esc(s){return String(s).replace(/[&<>\"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function lab(k){return k==="beauty"?"美妆":k==="study"?"学习":"旅行"}
+function formatXhsLikes(n){
+  const v=Math.max(0,Math.round(n));
+  if(v>=10000){const w=v/10000;const s=(Math.round(w*10)/10).toString().replace(/\.0$/,"");return s+"万";}
+  return String(v);
+}
+function topToTag(top){return top==="beauty"?"美妆":top==="study"?"学习":"旅行"}
+function sumW(){return TAGS.reduce((a,t)=>a+(state.algo[t]||0),0)}
+function mentor(msg,duration=4200){const el=document.getElementById("mentor");el.textContent=`林姐：${msg}`;el.style.display="block";clearTimeout(mentor.t);mentor.t=setTimeout(()=>el.style.display="none",duration)}
+function showMissionPop(msg,lvIdx){
+  const i=lvIdx!==undefined&&lvIdx!==null?lvIdx:state.level;
+  const lv=LEVELS[i]||LEVELS[0];
+  const el=document.getElementById("missionPop");
+  const mask=document.getElementById("missionMask");
+  el.classList.remove("mission-pop--out");
+  el.dataset.recvLevel=String(i);
+  const body=esc(msg||lv.storyPop||"").replace(/\n/g,"<br>");
+  el.innerHTML=`<div class="mission-title">第 ${i+1} 关</div><div class="mission-body" style="margin-top:8px">${body}</div><div class="mission-body" style="margin-top:10px;font-weight:700;color:#0f172a">${esc(lv.mission)}</div><button type="button" class="mission-ok" id="missionOkBtn">开玩</button>`;
+  mask.style.display="flex";
+}
+function pulseNumKey(id,val){
+  const el=typeof id==="string"?document.getElementById(id):id;
+  if(!el)return;
+  const s=String(val);
+  if(el.textContent!==s){
+    el.classList.remove("value-change");
+    void el.offsetWidth;
+    el.classList.add("value-change");
+    el.textContent=s;
+    setTimeout(()=>el.classList.remove("value-change"),380);
+  }else el.textContent=s;
+}
+function updateLivePreview(){renderRankBoard();}
+function hideMissionPop(){
+  document.getElementById("missionMask").style.display="none";
+  const el=document.getElementById("missionPop"); if(el) el.classList.remove("mission-pop--out");
+}
+function acceptMissionPop(){
+  const el=document.getElementById("missionPop");
+  const lv=Math.max(0,Math.min(2,parseInt(el&&el.dataset.recvLevel!==undefined?el.dataset.recvLevel:String(state.level),10)||state.level));
+  el.classList.add("mission-pop--out");
+  setTimeout(()=>{
+    hideMissionPop();
+    state.missionAcceptedByLevel[lv]=true;
+    save();
+    if(lv===1&&!state.hintsShown.dataPoolIntroShown){
+      state.hintsShown=state.hintsShown||{};
+      state.hintsShown.dataPoolIntroShown=true;
+      save();
+      document.getElementById("dataIntroOv").style.display="flex";
+      const pp=document.getElementById("userPoolPanel"),ch=document.getElementById("userPoolChev");
+      if(pp){pp.classList.add("is-open"); if(ch) ch.textContent="收起";}
+    }
+    renderAll();
+  },280);
+}
+function scheduleMissionPop(msg,delay=1200,lvIdx=state.level,allowWhenAccepted=false){
+  if(!allowWhenAccepted&&state.missionAcceptedByLevel[lvIdx]) return;
+  clearTimeout(missionTimer);
+  missionTimer=setTimeout(()=>showMissionPop(msg,lvIdx),delay);
+}
+function renderIntroOverview(){
+  const t=document.getElementById("introGoalText");
+  if(t) t.textContent="成为平台算法数据大师吧";
+}
+function floatDelta(v){floatMsg(`风险 +${v}`)}
+function floatMsg(text){const el=document.getElementById("float");if(!el)return;el.textContent=text;el.style.display="block";clearTimeout(floatMsg.t);floatMsg.t=setTimeout(()=>el.style.display="none",1600)}
+function addPost(title,text,type="n",detail=""){state.feed.unshift({id:Date.now()+Math.random(),title,text,type,detail,time:"刚刚"});state.feed=state.feed.slice(0,40);save();renderFeed()}
+function flashBudgetWarn(){
+  const b=document.getElementById("budgetV"); if(!b)return;
+  b.classList.remove("budget-flash");
+  void b.offsetWidth;
+  b.classList.add("budget-flash");
+  clearTimeout(flashBudgetWarn.t);
+  flashBudgetWarn.t=setTimeout(()=>b.classList.remove("budget-flash"),1800);
+}
+function enforceBudget(){
+  const cap=effectiveBudgetCap();
+  const total=sumW(); if(total<=cap) return false;
+  const r=cap/total,tmp={}; TAGS.forEach(t=>tmp[t]=Math.floor(state.algo[t]*r));
+  let left=cap-TAGS.reduce((a,t)=>a+tmp[t],0); const order=[...TAGS].sort((a,b)=>state.algo[b]-state.algo[a]); let i=0;
+  while(left>0){tmp[order[i%order.length]]++;left--;i++}
+  state.algo=tmp; flashBudgetWarn(); floatMsg("预算爆了，系统帮你压回去"); addPost("系统",`预算爆了，已压回 ${cap}`,"w");
+  state.hintsShown=state.hintsShown||{};
+  const ok=`over${state.level}`;
+  if(state.entered&&state.missionAcceptedByLevel[state.level]&&!state.hintsShown[ok]){
+    state.hintsShown[ok]=true; save();
+    scheduleMissionPop("别再把预算撑爆。",600,state.level,true);
+  }
+  return true;
+}
+function fatigueLoss(){const c=TAGS.filter(t=>state.algo[t]>=80).length;return c>=2?5:(c>=1?2:0)}
+function fatigueGainScale(){if(state.level===0)return .5;if(state.level===1)return .68;if(state.level===2)return 1.12;return 1}
+function avgReal(){
+  const rs=state.users.filter(u=>u.type==="real"),avg={美妆:0,穿搭:0,学习:0,旅行:0,美食:0}; const n=Math.max(1,rs.length);
+  rs.forEach(u=>TAGS.forEach(t=>avg[t]+=u.s[t])); TAGS.forEach(t=>avg[t]/=n); return avg;
+}
+function recalcRisk(show=false,reason=""){
+  const prev=state.susp,bots=state.users.filter(u=>u.type==="bot"),real=avgReal(),map={}; let total=0;
+  bots.forEach(b=>{
+    let s=10,vals=TAGS.map(t=>b.s[t]); vals.forEach(v=>{if(v>=90)s+=5;if(v<=10)s+=3});
+    if(vals.every(v=>v>=70&&v<=100))s+=15;
+    const rmse=Math.sqrt(TAGS.reduce((a,t)=>a+Math.pow(b.s[t]-real[t],2),0)/TAGS.length); if(rmse>40)s+=8;
+    map[b.id]=s; total+=s;
+  });
+  if(bots.length>3) total+=(bots.length-3)*5;
+  state.botMap=map; state.susp=clamp(total);
+  const lv=LEVELS[state.level],sm=lv.suspTrustMult??1,fm=lv.fatigueTrustMult??1;
+  state.trust=clamp(100-Math.round(state.susp*sm)-Math.round(state.fatigue*fm));
+  const d=state.susp-prev; if(show&&d>0){floatDelta(d); if(reason) floatMsg("平台开始怀疑你了");}
+  save(); renderTop(); applyGameplayLocks();
+}
+/** 信任过低：全屏封禁；风险指数过高：仅暂停算法/推送/加水军，用户池仍可改画像降风险 */
+function applyGameplayLocks(){
+  const trustBan=state.trust<30;
+  const suspPause = !trustBan && state.susp >= SUSP_PAUSE_THRESHOLD;
+  document.getElementById("banOv").style.display=trustBan?"flex":"none";
+  const ban=document.getElementById("suspPauseBanner");
+  if(ban){
+    ban.style.display=(!trustBan && suspPause)?"block":"none";
+    if(!trustBan && suspPause) ban.textContent=`可疑分合计 ≥ ${SUSP_PAUSE_THRESHOLD}：算法与推送已暂停，请先到「用户池」调低画像或点「重置」`;
+  }
+  document.getElementById("statusStrip")?.classList.toggle("status--susp-pause",!!suspPause);
+  if(trustBan){
+    document.querySelectorAll("button,input").forEach(el=>{
+      if(["resetBtn","banResetBtn","backBtn"].includes(el.id)){el.disabled=false;return}
+      if("disabled" in el) el.disabled=true;
+    });
+    return;
+  }
+  document.querySelectorAll("#algo input[data-algo]").forEach(el=>{el.disabled=suspPause});
+  const ex=document.getElementById("execBtn"); if(ex) ex.disabled=suspPause;
+  const ab=document.getElementById("addBotBtn"),lv=LEVELS[state.level];
+  if(ab&&lv){
+    const lockAdd=!lv.allowAdd||suspPause;
+    ab.disabled=lockAdd;
+    ab.classList.toggle("btn-locked",lockAdd||state.level===0);
+  }
+  syncUserPoolInputStates();
+}
+function syncUserPoolInputStates(){
+  const lv0=LEVELS[state.level];
+  document.querySelectorAll("#users input[data-score]").forEach(el=>{
+    const u=state.users.find(x=>x.id===el.dataset.score);
+    if(!u)return;
+    const can=u.type==="bot"&&lv0.allowBotEdit;
+    el.disabled=!can;
+  });
+  document.querySelectorAll("#users input[data-name]").forEach(el=>{
+    const u=state.users.find(x=>x.id===el.dataset.name);
+    if(!u)return;
+    el.disabled=u.type!=="bot"||!lv0.allowBotEdit;
+  });
+  document.querySelectorAll("#users button[data-del]").forEach(el=>{
+    el.disabled=state.level===0||!lv0.allowBotEdit;
+  });
+}
+function lockIfBan(){applyGameplayLocks()}
+function updateTrustEventUI(){
+  const el=document.getElementById("trustEventLine"),w=document.getElementById("warnText");
+  if(!el)return;
+  el.classList.remove("is-warn","is-danger","is-frozen");
+  const t=state.trust;
+  if(t<30){
+    el.textContent="🚫 账号异常，推荐冻结";
+    el.classList.add("is-frozen");
+    if(w){w.style.display="block";w.textContent="🚫 账号异常，推荐冻结"}
+  }else if(t<60){
+    el.textContent="⚠️ 平台开始限制你的流量";
+    el.classList.add("is-warn");
+    if(w){w.style.display="block";w.textContent="⚠️ 平台开始限制你的流量"}
+  }else{
+    el.textContent="平台对你还算客气";
+    if(w) w.style.display="none";
+  }
+}
+function renderTop(){
+  const cap=effectiveBudgetCap(),sw=sumW(),remain=cap-sw,t=state.trust;
+  const strip=document.getElementById("statusStrip");
+  const prevT=renderTop._prevTrust;
+  renderTop._prevTrust=t;
+  if(prevT!==undefined&&t<prevT&&strip){
+    strip.classList.remove("status-trust-drop");
+    void strip.offsetWidth;
+    strip.classList.add("status-trust-drop");
+    setTimeout(()=>strip.classList.remove("status-trust-drop"),450);
+  }
+  pulseNumKey("susV",String(state.susp));
+  pulseNumKey("budgetV",String(remain));
+  pulseNumKey("trustV",String(t));
+  const si=document.getElementById("susInlineWrap"); if(si) si.classList.remove("hidden");
+  updateTrustEventUI();
+  const tf=document.getElementById("trustFill");
+  if(tf){
+    tf.style.width=`${t}%`;
+    if(t>70) tf.style.background="linear-gradient(90deg,#34d399,#22c55e)";
+    else if(t>=30) tf.style.background="linear-gradient(90deg,#fde047,#eab308)";
+    else tf.style.background="linear-gradient(90deg,#fb7185,#dc2626)";
+  }
+  document.getElementById("app").classList.toggle("warn",t<60);
+  updateGoalScoreDisplay();
+}
+function updateGoalScoreDisplay(){
+  const el=document.getElementById("goalScoreLine");
+  if(!el)return;
+  const lv=LEVELS[state.level];
+  if(!lv){el.textContent="";return;}
+  const r=rank();
+  const item=r.s.find(x=>x.key===lv.top);
+  const sc=item?item.score:0;
+  const tag=lab(lv.top);
+  const target=lv.minScore;
+  const hint=target!=null?`通关需 ≥ ${target} 分`:"";
+  const rankPos=r.s.findIndex(x=>x.key===lv.top)+1;
+  const first=r.s[0];
+  const isFirst=first&&first.key===lv.top;
+  const okScore=target==null||sc>=target;
+  el.className="goal-score-strip"+(okScore&&isFirst?" goal-score-strip--ok":"");
+  let sub=`${hint?hint+" · ":""}排名 ${rankPos}/3`;
+  if(lv.minTrust!=null) sub+=` · 信任 ${state.trust}%（须>${lv.minTrust}）`;
+  if(lv.maxSusp!=null) sub+=` · 可疑分 ${state.susp}（须≤${lv.maxSusp}）`;
+  if(!isFirst&&first) sub+=` · 当前首位「${lab(first.key)}」${first.score} 分`;
+  el.innerHTML=`<div>当前「${esc(tag)}」匹配分 <span class="goal-num">${sc}</span> 分</div><div class="goal-sub">${esc(sub)}</div>`;
+}
+function levelMeta(){
+  const lv=LEVELS[state.level];
+  document.getElementById("lvName").textContent=lv.name;
+  document.getElementById("lvMission").textContent=lv.mission;
+}
+function avgAll(){
+  const a={美妆:0,穿搭:0,学习:0,旅行:0,美食:0},n=Math.max(1,state.users.length);
+  state.users.forEach(u=>TAGS.forEach(t=>a[t]+=u.s[t])); TAGS.forEach(t=>a[t]/=n); return a;
+}
+function scoreItem(c,a){
+  let sum=0;
+  TAGS.forEach(t=>{const w=state.algo[t],u=a[t],k=c.w[t]||0;sum+=(w/100)*(u/100)*k*100;});
+  let mult=1;
+  if(state.trust<30) mult=.5;
+  else if(state.trust<60) mult=.8;
+  sum*=mult;
+  return {key:c.key,title:c.title,score:Math.round(sum),tags:TAGS.filter(t=>(c.w[t]||0)>0).join(" "),calc:""};
+}
+function rank(){const a=avgAll();const s=CONTENTS.map(c=>scoreItem(c,a)).sort((x,y)=>y.score-x.score);return {a,s};}
+function showPulse(kind,title,sub){
+  const ov=document.getElementById("pulseOv"),card=document.getElementById("pulseCard");
+  if(!ov||!card)return;
+  card.className="pulse-card"+(kind==="ok"?" pulse-card--ok":kind==="fail"?" pulse-card--fail":"");
+  void card.offsetWidth;
+  const pt=document.getElementById("pulseTitle"),ps=document.getElementById("pulseSub");
+  if(pt) pt.textContent=title||"—";
+  if(ps) ps.textContent=sub||"";
+  ov.classList.add("is-on");
+  ov.setAttribute("aria-hidden","false");
+  clearTimeout(showPulse.t);
+  showPulse.t=setTimeout(()=>{ov.classList.remove("is-on");ov.setAttribute("aria-hidden","true");},1100);
+}
+function renderRankBoard(){
+  const list=document.getElementById("rankList"); if(!list)return;
+  const r=rank(),sorted=r.s.slice(0,3),prev=state.prevRankKeys||[];
+  const keys=sorted.map(x=>x.key);
+  list.className="rank-list xhs-feed";
+  list.innerHTML=sorted.map((it,i)=>{
+    const c=CONTENTS.find(x=>x.key===it.key)||{};
+    const grad=c.coverGradient||"linear-gradient(160deg,#f3f4f6,#e5e7eb)";
+    const title=c.title||lab(it.key);
+    const nick=c.nick||"小红薯";
+    const av=c.authorEmoji||"🍠";
+    const tag=c.tagLabel||lab(it.key);
+    const likes=Math.min(99999,Math.round(520+it.score*38));
+    const likeStr=formatXhsLikes(likes);
+    const oldIdx=prev.indexOf(it.key);
+    let mv="";
+    if(prev.length&&oldIdx!==-1&&oldIdx!==i) mv=oldIdx>i?" xhs-card--mv-up":" xhs-card--mv-down";
+    const flash=prev.length&&prev[i]!==it.key?" xhs-card--flash":"";
+    const first=i===0?" xhs-card--first":"";
+    return `<article class="xhs-card${first}${flash}${mv}" data-key="${esc(it.key)}">
+      <div class="xhs-cover" style="background:${grad}"><span class="xhs-tag">${esc(tag)}</span><span class="xhs-match">匹配 ${it.score}</span></div>
+      <div class="xhs-title">${esc(title)}</div>
+      <div class="xhs-footer"><span class="xhs-user"><span class="xhs-av">${av}</span><span class="xhs-nick">${esc(nick)}</span></span><span class="xhs-like">♡ ${likeStr}</span></div>
+    </article>`;
+  }).join("");
+  state.prevRankKeys=keys;
+  updateGoalScoreDisplay();
+  checkPass(r.s);
+}
+function checkPass(sorted){
+  const lv=LEVELS[state.level],top=sorted[0],bots=state.users.filter(u=>u.type==="bot").length;
+  const okTop=top&&top.key===lv.top,okScore=lv.minScore==null?true:top.score>=lv.minScore,okBots=levelBotsPass(lv,bots),okTrust=lv.minTrust==null?true:state.trust>lv.minTrust,okSusp=levelSuspPass(lv),okBotsReal=levelBotsLookRealPass(lv);
+  if(okTop&&okScore&&okBots&&okTrust&&okSusp&&okBotsReal&&!state.passed[state.level]){
+    state.passed[state.level]=true;save();
+    const sc=top.score;
+    let pt="";
+    if(state.level===0) pt=`🎉 通关！你掌握了权重调优的基础\n美妆以${sc}分夺冠`;
+    else if(state.level===1) pt=`🎉 通关！你学会了用水军操纵数据\n学习以${sc}分登顶`;
+    else pt=`🏆 恭喜！你理解了算法博弈的边界\n旅行以${sc}分胜出`;
+    document.getElementById("passText").textContent=pt;
+    document.getElementById("nextBtn").textContent=state.level===2?"收工":"下一关";
+    document.getElementById("passOv").style.display="flex";
+  }
+}
+function renderUsers(){
+  const box=document.getElementById("users"),lv0=LEVELS[state.level];
+  box.innerHTML=state.users.map(u=>{
+    const edit=u.type==="bot"&&lv0.allowBotEdit,s=state.botMap[u.id]||0,lv=s>=35?["🔴高","h"]:s>=20?["🟡中","m"]:["🟢低","l"];
+    return `<div class="card u">
+      <div class="uhead"><div><b>${esc(u.name)}</b><div class="hint">${edit?"可改":"锁死"}</div></div>${edit?`<span class="badge ${lv[1]}">${lv[0]}</span>`:`<span class="badge l">真</span>`}</div>
+      ${edit?`<input class="name-input" data-name="${u.id}" value="${esc(u.name)}">`:""}
+      ${TAGS.map(t=>`<div class="slider"><div class="lr"><span>${t}</span><span id="${u.id}-${t}">${u.s[t]}</span></div><input type="range" min="0" max="100" value="${u.s[t]}" ${edit?`data-score="${u.id}" data-tag="${t}"`:"disabled"}></div>`).join("")}
+      ${edit?`<div style="text-align:right"><button class="danger" data-del="${u.id}">删除</button></div>`:""}
+    </div>`;
+  }).join("");
+  box.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    if(state.level===0){ document.getElementById("permOv").style.display="flex"; return;}
+    state.users=state.users.filter(u=>u.id!==b.dataset.del);recalcRisk(false);renderAll();
+  });
+  box.querySelectorAll("[data-name]").forEach(i=>i.oninput=e=>{
+    if(state.level===0){ document.getElementById("permOv").style.display="flex"; e.target.value=state.users.find(x=>x.id===e.target.dataset.name)?.name||""; return;}
+    const u=state.users.find(x=>x.id===e.target.dataset.name);if(u)u.name=e.target.value.slice(0,20);save();
+  });
+  box.querySelectorAll("[data-score]").forEach(i=>i.onchange=e=>{
+    if(state.level===0){ document.getElementById("permOv").style.display="flex"; const u=state.users.find(x=>x.id===e.target.dataset.score);if(u)i.value=String(u.s[e.target.dataset.tag]);return;}
+    const id=e.target.dataset.score,t=e.target.dataset.tag,v=clamp(+e.target.value),u=state.users.find(x=>x.id===id); if(!u)return; u.s[t]=v;
+    const s=document.getElementById(`${id}-${t}`); if(s)s.textContent=v;
+    recalcRisk(true,"检测到异常画像改写"); renderUsers(); renderRankBoard(); updateLivePreview();
+  });
+}
+function renderAlgo(){
+  const box=document.getElementById("algo");
+  box.innerHTML=TAGS.map(t=>`<div class="slider"><div class="lr"><span>${t}</span><span id="a-${t}" title="当前${t}算法权重">${state.algo[t]}</span></div><input type="range" min="0" max="100" value="${state.algo[t]}" data-algo="${t}" aria-label="${t}权重"></div>`).join("");
+  box.querySelectorAll("[data-algo]").forEach(i=>i.oninput=e=>{
+    const t=e.target.dataset.algo; state.algo[t]=clamp(+e.target.value); const c=enforceBudget();
+    TAGS.forEach(k=>{const el=document.getElementById(`a-${k}`);if(el)el.textContent=state.algo[k]});
+    if(c)box.querySelectorAll("[data-algo]").forEach(s=>s.value=state.algo[s.dataset.algo]);
+    save(); renderTop(); updateLivePreview(); renderRankBoard();
+  });
+}
+function renderFeed(){
+  const box=document.getElementById("feed"); if(!box)return;
+  if(!state.feed.length){box.innerHTML="";return}
+  box.innerHTML=state.feed.slice(0,6).map(p=>`<div class="post" style="padding:8px 10px"><b>${esc(p.title)}</b> · ${esc(p.text)}</div>`).join("");
+}
+function renderRec(){renderRankBoard();renderFeed();}
+/** 单轮推送：权重过激扣信任（取最高档，不与多档叠加） */
+function applyExtremeWeightPenalty(){
+  const vals=TAGS.map(t=>state.algo[t]);
+  const has90=vals.some(w=>w>=90);
+  const has85=vals.some(w=>w>=85&&w<90);
+  let delta=0,msg="";
+  if(has90){delta=10;msg="权重过高，用户感到厌倦，信任度-10%"}
+  else if(has85){delta=5;msg="权重偏高，用户开始流失，信任度-5%"}
+  if(delta>0){
+    state.trust=Math.max(0,state.trust-delta);
+    floatMsg(msg);
+    addPost("权重",msg,"w");
+    save();
+  }
+}
+function execRound(){
+  if(state.trust<30)return;
+  if(state.susp>=SUSP_PAUSE_THRESHOLD){floatMsg("风险过高，暂停推送");return}
+  const raw=fatigueLoss(); const scale=fatigueGainScale();
+  const loss=raw>0?Math.max(1,Math.round(raw*scale)):0;
+  if(loss>0){state.fatigue+=loss; floatMsg("推太猛，系统盯上你了")}
+  recalcRisk(false);
+  if(state.trustPenaltyNext){
+    state.trust=clamp(state.trust-state.trustPenaltyNext);
+    state.trustPenaltyNext=0;
+    save();
+  }
+  applyExtremeWeightPenalty();
+  const r=rank(),top=r.s[0],lv=LEVELS[state.level];
+  const goalFirst=top&&top.key===lv.top;
+  if(goalFirst){
+    showPulse("ok","🎉 冲上第一！","系统正在重新分配流量…");
+  }else{
+    showPulse("fail","⚠️ 系统检测异常行为","你的策略过于极端，系统降低了推荐");
+  }
+  addPost("推送",goalFirst?"你抢到了首位":"还差一口气","n","");
+  renderTop(); renderRec(); save();
+}
+function resetLevel(i=state.level){
+  state.level=i; state.algo={美妆:45,穿搭:52,学习:50,旅行:58,美食:45}; state.users=baseUsersLevel(i); state.botIdx=1; state.susp=0; state.trust=100; state.fatigue=0; state.botMap={}; state.trustPenaltyNext=0; state.prevRankKeys=[];
+  state.passed[i]=false;
+  if(i===0){state.feed=[]; state.hintsShown=state.hintsShown||{}; state.hintsShown.algoTabVisited=false;}
+  recalcRisk(false); state.tab="algo"; save(); renderTop._prevTrust=undefined; renderAll();
+}
+function enter(){state.entered=true;state.passed=[false,false,false];resetLevel(0);renderApp()}
+function back(){state.entered=false;save();renderApp()}
+function addBot(){
+  const lv=LEVELS[state.level];
+  if(state.level===0){ document.getElementById("permOv").style.display="flex"; return;}
+  if(!lv.allowAdd||state.trust<30)return;
+  if(state.susp>=SUSP_PAUSE_THRESHOLD){floatMsg("风险过高，暂停加水军");return}
+  const tag=topToTag(lv.top);
+  state.botIdx++;
+  state.users.push({id:`bot-${Date.now()}-${state.botIdx}`,type:"bot",name:`水军${String(state.botIdx).padStart(3,"0")}🟡`,s:{美妆:0,穿搭:0,学习:0,旅行:0,美食:0}});
+  state.algo[tag]=clamp(state.algo[tag]+12);
+  enforceBudget();
+  state.trustPenaltyNext=14;
+  recalcRisk(true,"新增可疑账号");
+  floatMsg("短期有效，但系统已记录异常行为");
+  addPost("水军","流量被硬拉了一下…","w");
+  renderAll();
+}
+function renderAll(){
+  renderTop(); levelMeta();
+  const n=String(state.users.length);
+  const dh=document.getElementById("dataPoolHint");
+  if(dh) dh.innerHTML=`人数 <b id="uc">${n}</b>`;
+  const lv=LEVELS[state.level],bots=state.users.filter(u=>u.type==="bot").length,ab=document.getElementById("addBotBtn");
+  if(ab){
+    if(state.level===0) ab.textContent="⚠️ 下一关才解锁";
+    else if(lv.allowAdd) ab.textContent="⚠️ 添加水军（高风险）";
+    else ab.textContent=`水军已锁定（${bots}）`;
+  }
+  renderUsers(); renderAlgo(); renderRec();
+  applyGameplayLocks();
+}
+function updateTabsBarVisibility(){}
+function updateAlgoTabHint(){}
+function switchTab(){}
+function dismissIntroStory(){
+  introCinematicPending=false;
+  clearInterval(introTwTimer);
+  introTwTimer=null;
+  document.getElementById("introCinematic")?.classList.add("hidden");
+  renderApp();
+}
+function renderApp(){
+  hideMissionPop();
+  clearTimeout(missionTimer);
+  renderIntroOverview();
+  const cin=document.getElementById("introCinematic"),main=document.getElementById("introMain");
+  const introEl=document.getElementById("intro"),gameEl=document.getElementById("game"),actionEl=document.getElementById("action");
+  cin?.classList.add("hidden");
+  introEl?.classList.toggle("hidden",state.entered);
+  gameEl?.classList.toggle("hidden",!state.entered);
+  actionEl?.classList.toggle("hidden",!state.entered);
+  if(!state.entered) main?.classList.remove("hidden");
+  if(state.entered){
+    renderAll();
+    if(state.missionAcceptedByLevel[state.level]) return;
+    if(shownLevelMission!==state.level){
+      scheduleMissionPop(LEVELS[state.level].storyPop,600,state.level);
+      shownLevelMission=state.level;
+    }
+  }
+}
+
+document.getElementById("startBtn").onclick=enter;
+document.getElementById("backBtn").onclick=back;
+document.getElementById("resetBtn").onclick=()=>resetLevel(state.level);
+document.getElementById("addBotBtn").onclick=()=>addBot();
+document.getElementById("execBtn").onclick=execRound;
+document.getElementById("permOkBtn").onclick=()=>{document.getElementById("permOv").style.display="none";};
+document.getElementById("dataIntroOkBtn").onclick=()=>{document.getElementById("dataIntroOv").style.display="none";};
+document.getElementById("nextBtn").onclick=()=>{
+  document.getElementById("passOv").style.display="none";
+  if(state.level<2){ resetLevel(state.level+1); renderApp(); }
+  else{
+    const ft=document.getElementById("finalText");
+    if(ft) ft.textContent="算法会记住你做过什么。";
+    document.getElementById("finalOv").style.display="flex";
+  }
+};
+document.getElementById("restartBtn").onclick=()=>{
+  introCinematicPending=false;
+  introTypewriterStarted=false;
+  clearInterval(introTwTimer);
+  introTwTimer=null;
+  shownLevelMission=-1;
+  state=initState();save();document.getElementById("finalOv").style.display="none";renderApp();
+};
+document.getElementById("banResetBtn").onclick=()=>{document.getElementById("banOv").style.display="none";resetLevel(state.level);};
+document.getElementById("passOv").onclick=e=>{if(e.target.id==="passOv")e.currentTarget.style.display="none";};
+document.getElementById("finalOv").onclick=e=>{if(e.target.id==="finalOv")e.currentTarget.style.display="none";};
+document.getElementById("pulseOv")?.addEventListener("click",()=>{document.getElementById("pulseOv")?.classList.remove("is-on");});
+document.addEventListener("click",e=>{if(e.target&&e.target.id==="missionOkBtn")acceptMissionPop();});
+document.getElementById("userPoolToggle")?.addEventListener("click",()=>{
+  const p=document.getElementById("userPoolPanel"),ch=document.getElementById("userPoolChev");
+  if(!p)return;
+  p.classList.toggle("is-open");
+  if(ch) ch.textContent=p.classList.contains("is-open")?"收起":"展开";
+});
+
+renderApp();
+</script>
+</body>
+</html>
